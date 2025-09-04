@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Clock, MapPin, DollarSign, CheckCircle, AlertCircle, ArrowUpDown } from 'lucide-react';
 interface FlightOption {
@@ -13,6 +13,7 @@ interface FlightOption {
   voucher: number;
   seats: number;
 }
+// Primary airport set (Same Airport tab)
 interface RefundOption {
   type: string;
   amount: number;
@@ -78,9 +79,237 @@ const TABS = [{
   label: 'Refund Options'
 }] as any[];
 
+// Alternate airports within ~300 miles of EWR with sample options to Chicago (ORD/MDW)
+const ALTERNATE_FLIGHT_OPTIONS: FlightOption[] = [
+  {
+    id: 'aa301',
+    departure: 'JFK',
+    arrival: 'ORD',
+    departureTime: '17:45',
+    arrivalTime: '19:20',
+    duration: '2h 35m',
+    aircraft: 'A321',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 14
+  },
+  {
+    id: 'ua512',
+    departure: 'LGA',
+    arrival: 'ORD',
+    departureTime: '18:10',
+    arrivalTime: '19:55',
+    duration: '2h 45m',
+    aircraft: '737-800',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 11
+  },
+  {
+    id: 'b63670',
+    departure: 'JFK',
+    arrival: 'MDW',
+    departureTime: '19:05',
+    arrivalTime: '20:55',
+    duration: '2h 50m',
+    aircraft: 'A320',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 9
+  },
+  {
+    id: 'dl2241',
+    departure: 'HPN',
+    arrival: 'ORD',
+    departureTime: '18:25',
+    arrivalTime: '20:05',
+    duration: '2h 40m',
+    aircraft: 'E175',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 6
+  },
+  {
+    id: 'wn1182',
+    departure: 'ISP',
+    arrival: 'MDW',
+    departureTime: '18:50',
+    arrivalTime: '21:05',
+    duration: '3h 15m',
+    aircraft: '737-700',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 18
+  },
+  {
+    id: 'ua901',
+    departure: 'PHL',
+    arrival: 'ORD',
+    departureTime: '17:30',
+    arrivalTime: '19:15',
+    duration: '2h 45m',
+    aircraft: '737-900',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 16
+  },
+  {
+    id: 'ua1412',
+    departure: 'BDL',
+    arrival: 'ORD',
+    departureTime: '19:20',
+    arrivalTime: '21:05',
+    duration: '2h 45m',
+    aircraft: '737-800',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 7
+  },
+  {
+    id: 'aa2183',
+    departure: 'ALB',
+    arrival: 'ORD',
+    departureTime: '18:00',
+    arrivalTime: '20:00',
+    duration: '2h 00m',
+    aircraft: 'E190',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 10
+  },
+  {
+    id: 'ua332',
+    departure: 'BWI',
+    arrival: 'ORD',
+    departureTime: '17:55',
+    arrivalTime: '19:35',
+    duration: '2h 40m',
+    aircraft: '737-800',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 20
+  },
+  {
+    id: 'ua441',
+    departure: 'IAD',
+    arrival: 'ORD',
+    departureTime: '20:05',
+    arrivalTime: '21:45',
+    duration: '2h 40m',
+    aircraft: 'A319',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 12
+  }
+];
+
+// Star Alliance options to Chicago (ORD/MDW) from NY/NJ region and nearby hubs
+const STAR_ALLIANCE_FLIGHT_OPTIONS: FlightOption[] = [
+  {
+    id: 'ua1288',
+    departure: 'EWR',
+    arrival: 'ORD',
+    departureTime: '17:20',
+    arrivalTime: '18:55',
+    duration: '2h 35m',
+    aircraft: '737-800',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 13
+  },
+  {
+    id: 'ua2196',
+    departure: 'EWR',
+    arrival: 'ORD',
+    departureTime: '19:10',
+    arrivalTime: '20:45',
+    duration: '2h 35m',
+    aircraft: '737-900',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 9
+  },
+  {
+    id: 'ua347',
+    departure: 'LGA',
+    arrival: 'ORD',
+    departureTime: '18:05',
+    arrivalTime: '19:45',
+    duration: '2h 40m',
+    aircraft: 'A319',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 7
+  },
+  {
+    id: 'ua5102',
+    departure: 'HPN',
+    arrival: 'ORD',
+    departureTime: '18:30',
+    arrivalTime: '20:15',
+    duration: '2h 45m',
+    aircraft: 'E175',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 5
+  },
+  {
+    id: 'ac8998',
+    departure: 'EWR',
+    arrival: 'YYZ',
+    departureTime: '17:10',
+    arrivalTime: '18:30',
+    duration: '1h 20m',
+    aircraft: 'E190',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 12
+  },
+  {
+    id: 'ac503',
+    departure: 'YYZ',
+    arrival: 'ORD',
+    departureTime: '19:30',
+    arrivalTime: '20:40',
+    duration: '1h 10m',
+    aircraft: 'A220-300',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 10
+  },
+  {
+    id: 'ua4410',
+    departure: 'IAD',
+    arrival: 'ORD',
+    departureTime: '20:05',
+    arrivalTime: '21:45',
+    duration: '2h 40m',
+    aircraft: '737-800',
+    waiverStatus: 'eligible',
+    voucher: 0,
+    seats: 16
+  }
+];
+
+interface FlightRefundOptionsPanelProps {
+  activeTabOverride?: 'same-airport' | 'alternate' | 'star-alliance' | 'refund';
+  filterArrival?: string | null;
+  highlightFlightId?: string | null;
+}
+
 // @component: FlightRefundOptionsPanel
-export const FlightRefundOptionsPanel = () => {
+export const FlightRefundOptionsPanel = ({
+  activeTabOverride,
+  filterArrival,
+  highlightFlightId
+}: FlightRefundOptionsPanelProps) => {
   const [activeTab, setActiveTab] = useState('same-airport');
+  // Sync active tab with overrides from parent when provided
+  useEffect(() => {
+    if (activeTabOverride) {
+      setActiveTab(activeTabOverride);
+    }
+  }, [activeTabOverride]);
   const [sortBy, setSortBy] = useState<'time' | 'duration' | 'seats'>('time');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const handleSort = (field: 'time' | 'duration' | 'seats') => {
@@ -91,7 +320,22 @@ export const FlightRefundOptionsPanel = () => {
       setSortOrder('asc');
     }
   };
-  const sortedFlights = [...FLIGHT_OPTIONS].sort((a, b) => {
+  // Choose dataset by tab; for Alternate we show airports within ~300 miles of EWR to Chicago
+  const baseFlights = activeTab === 'alternate'
+    ? ALTERNATE_FLIGHT_OPTIONS
+    : activeTab === 'star-alliance'
+    ? STAR_ALLIANCE_FLIGHT_OPTIONS
+    : FLIGHT_OPTIONS;
+
+  // Apply optional filtering by arrival airport for tabs other than Alternate and Star Alliance
+  const visibleFlights = useMemo(() => {
+    if (activeTab === 'alternate' || activeTab === 'star-alliance') return baseFlights;
+    return baseFlights.filter((f) =>
+      filterArrival ? f.arrival.toLowerCase() === filterArrival.toLowerCase() : true
+    );
+  }, [filterArrival, baseFlights, activeTab]);
+
+  const sortedFlights = [...visibleFlights].sort((a, b) => {
     let comparison = 0;
     switch (sortBy) {
       case 'time':
@@ -216,8 +460,18 @@ export const FlightRefundOptionsPanel = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
+                {activeTab === 'alternate' && (
+                  <div className="mb-3 text-xs text-slate-600">
+                    Showing alternate departure airports within ~300 miles of EWR to Chicago (ORD/MDW).
+                  </div>
+                )}
+                {activeTab === 'star-alliance' && (
+                  <div className="mb-3 text-xs text-slate-600">
+                    Showing Star Alliance partner options to Chicago (United, Air Canada, etc.).
+                  </div>
+                )}
                 <div className="space-y-3">
-                  {sortedFlights.map((flight, index) => <motion.div key={flight.id} className="border border-slate-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer" initial={{
+                  {sortedFlights.map((flight, index) => <motion.div key={flight.id} className={`border rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer ${highlightFlightId === flight.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-200'}`} initial={{
                 opacity: 0,
                 y: 20
               }} animate={{

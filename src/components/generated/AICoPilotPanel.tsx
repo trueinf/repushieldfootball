@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Lightbulb, MessageSquare, Gift, Copy, CheckCircle, Zap, Star } from 'lucide-react';
 interface AICoPilotPanelProps {
   suggestions: string[];
+  scripts?: ScriptSnippet[];
 }
 interface ScriptSnippet {
   id: string;
@@ -17,7 +18,7 @@ interface GoodwillOffer {
   description: string;
   icon: React.ElementType;
 }
-const SCRIPT_SNIPPETS: ScriptSnippet[] = [{
+const DEFAULT_SCRIPT_SNIPPETS: ScriptSnippet[] = [{
   id: 'empathy-1',
   title: 'Acknowledge Frustration',
   content: "I completely understand how frustrating this situation must be, especially with your important meeting.",
@@ -65,7 +66,8 @@ const CATEGORY_COLORS = {
 
 // @component: AICoPilotPanel
 export const AICoPilotPanel = ({
-  suggestions
+  suggestions,
+  scripts
 }: AICoPilotPanelProps) => {
   const [copiedScript, setCopiedScript] = useState<string | null>(null);
   const [selectedGoodwill, setSelectedGoodwill] = useState<string | null>(null);
@@ -163,7 +165,7 @@ export const AICoPilotPanel = ({
               </h3>
             </div>
             <div className="space-y-3">
-              {SCRIPT_SNIPPETS.map((script, index) => <motion.div key={script.id} className={`border rounded-lg p-4 hover:shadow-md transition-all ${CATEGORY_COLORS[script.category]}`} initial={{
+              {(scripts ?? DEFAULT_SCRIPT_SNIPPETS).map((script, index) => <motion.div key={script.id} className={`border rounded-lg p-4 hover:shadow-md transition-all ${CATEGORY_COLORS[script.category]}`} initial={{
               opacity: 0,
               y: 20
             }} animate={{

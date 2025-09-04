@@ -38,11 +38,13 @@ export const CallerTranscriptPanel = ({
   intent,
   likelihood
 }: CallerTranscriptPanelProps) => {
+  // Keep transcript scrolled within its own container without shifting the page
+  const containerRef = useRef<HTMLDivElement>(null);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    transcriptEndRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
+    const el = containerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
   }, [transcript]);
   const getSentimentConfig = () => {
     if (sentiment > 0.5) return SENTIMENT_CONFIG.positive;
@@ -143,7 +145,7 @@ export const CallerTranscriptPanel = ({
         </div>
       </div>
 
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div ref={containerRef} className="flex-1 p-6 overflow-y-auto">
         <div className="space-y-4">
           <AnimatePresence>
             {transcript.map((entry, index) => <motion.div key={`transcript-${index}`} className={`flex items-start space-x-3 ${entry.speaker === 'Customer' ? 'flex-row' : 'flex-row-reverse'}`} initial={{
