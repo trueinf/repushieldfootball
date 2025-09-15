@@ -329,7 +329,7 @@ export default function PromptManager() {
                     <li key={v.id} className="flex items-center justify-between">
                       <span>v{v.version} — {v.author}</span>
                       <div className="space-x-2">
-                        <button className="text-blue-600 hover:text-blue-800" onClick={() => setComparePair({ a: selected.version, b: v }) || setView("compare")}>Compare</button>
+                        <button className="text-blue-600 hover:text-blue-800" onClick={() => { setComparePair({ a: selected.version, b: v }); setView("compare"); }}>Compare</button>
                         <button className="text-green-600 hover:text-green-800" onClick={() => activateVersion({ prompt: selected.prompt, version: v })}>Activate</button>
                       </div>
                     </li>
