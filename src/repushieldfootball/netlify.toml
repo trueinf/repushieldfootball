@@ -1,25 +1,6 @@
 [build]
-  command = "yarn install --frozen-lockfile && yarn build"
-  publish = "out"
+  command = "npm run build"
 
-[build.environment]
-  NODE_VERSION = "18.17.0"
-  YARN_VERSION = "1.22.22"
-  NODE_ENV = "production"
-  NEXT_TELEMETRY_DISABLED = "1"
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
