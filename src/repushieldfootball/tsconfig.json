@@ -22,7 +22,8 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "next-env.d.ts",
@@ -34,5 +35,8 @@
     "node_modules",
     ".next",
     "out"
-  ]
+  ],
+  "ts-node": {
+    "esm": true
+  }
 }
