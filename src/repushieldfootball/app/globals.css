@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global tweaks inspired by the provided design */
+::-webkit-scrollbar { display: none; }
+html, body { -ms-overflow-style: none; scrollbar-width: none; }
+
+body { @apply bg-gray-50; }
+
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+
+.nav-item { transition: all 0.2s ease; }
+.nav-item:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+.sparkline { height: 40px; }
+
+/* Animated attention background for high-severity threats */
+@keyframes alertPulse {
+  0% { background-color: rgba(254, 226, 226, 1); }
+  50% { background-color: rgba(254, 202, 202, 1); }
+  100% { background-color: rgba(254, 226, 226, 1); }
+}
+
+.threat-animated {
+  animation: alertPulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threat-animated { animation: none; }
+}
+
+/* Admin sidebar item states */
+.admin-nav-item { transition: background-color 0.2s ease; }
+.admin-nav-item:hover { background-color: #f3f4f6; }
+.admin-nav-item.active { background-color: #3b82f6; color: #fff; }
+
+/* Feed/Triage post cards */
+.post-card { transition: all 0.2s ease; }
+.post-card:hover { box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1); }
